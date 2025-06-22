@@ -1,0 +1,35 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SkillSwap API",
+    "version": "1.0.0",
+    "description": "API documentation for SkillSwap backend."
+  },
+  "servers": [
+    { "url": "http://localhost:5000/api" }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "User login",
+        "requestBody": { "required": true },
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/community-forum": {
+      "get": { "summary": "Get all forum posts", "responses": { "200": { "description": "Success" } } }
+    },
+    "/messages": {
+      "get": { "summary": "Get all messages", "responses": { "200": { "description": "Success" } } }
+    },
+    "/tutor-upload/lesson-video": {
+      "post": { "summary": "Upload lesson video", "responses": { "201": { "description": "Uploaded" } } }
+    },
+    "/search/courses": {
+      "get": { "summary": "Search courses", "responses": { "200": { "description": "Success" } } }
+    },
+    "/gamification/leaderboard": {
+      "get": { "summary": "Get leaderboard", "responses": { "200": { "description": "Success" } } }
+    }
+  }
+}

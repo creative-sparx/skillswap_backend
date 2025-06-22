@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: skillswap-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Add your secrets in the Render dashboard or here
