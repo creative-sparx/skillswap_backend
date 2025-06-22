@@ -1,58 +1,96 @@
-// Message Controller - CRUD operations for direct chat
 import Message from '../models/Message.js';
+import SkillSwap from '../models/SkillSwap.js';
+import { io } from '../server.js'; // Import the Socket.IO instance
+import { sendPushNotification } from '../services/notificationService.js';
 
-// Create a new message
-export const createMessage = async (req, res) => {
+/**
+ * @desc    Send a new message within a skill swap
+ * @route   POST /api/swaps/:swapId/messages
+ * @access  Private
+ */
+export const sendMessage = async (req, res) => {
+  const { content, repliedToMessageId } = req.body;
+  const { swapId } = req.params;
+  const senderId = req.user.id;
+
+  if (!content) {
+    return res.status(400).json({ message: 'Message content cannot be empty.' });
+  }
+
   try {
-    const message = await Message.create(req.body);
-    res.status(201).json(message);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const swap = await SkillSwap.findById(swapId).populate('participants', 'username fcmTokens');
+    if (!swap) return res.status(404).json({ message: 'Skill swap not found.' });
+
+    const recipient = swap.participants.find(p => p._id.toString() !== senderId);
+    if (!recipient) return res.status(404).json({ message: 'Recipient not found.' });
+
+    const newMessage = new Message({
+      swap: swapId,
+      sender: senderId,
+      recipient: recipient._id,
+      content: content,
+      repliedToMessageId: repliedToMessageId, // Add reply support
+    });
+    await newMessage.save();
+
+    // Populate for real-time and push notification
+    await newMessage.populate([
+      { path: 'sender', select: 'username avatar' },
+      { path: 'recipient', select: 'username avatar' },
+      { path: 'repliedToSender', select: 'username' }
+    ]);
+
+    // Emit real-time message
+    io.to(swapId).emit('new_message_realtime', newMessage);
+
+    // Send push notification
+    if (recipient.fcmTokens && recipient.fcmTokens.length > 0) {
+      const notificationTitle = `New message from ${newMessage.sender.username}`;
+      const notificationBody = content.length > 100 ? `${content.substring(0, 97)}...` : content;
+      await sendPushNotification(recipient.fcmTokens, notificationTitle, notificationBody, { type: 'new_message', swapId: swapId });
+    }
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ message: 'Server error while sending message.' });
   }
 };
 
-// Get all messages (optionally filter by sender/receiver)
-export const getAllMessages = async (req, res) => {
+/**
+ * @desc    Get all messages for a specific swap
+ * @route   GET /api/swaps/:swapId/messages
+ * @access  Private
+ */
+export const getMessagesForSwap = async (req, res) => {
+  const { swapId } = req.params;
   try {
-    const filter = {};
-    if (req.query.sender) filter.sender = req.query.sender;
-    if (req.query.receiver) filter.receiver = req.query.receiver;
-    const messages = await Message.find(filter).sort({ sentAt: -1 });
+    const messages = await Message.find({ swap: swapId })
+      .populate('sender', 'username avatar')
+      .populate('recipient', 'username avatar')
+      .populate('repliedToSender', 'username')
+      .sort({ createdAt: 1 });
     res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error fetching messages.' });
   }
 };
 
-// Get a message by ID
-export const getMessageById = async (req, res) => {
+/**
+ * @desc    Mark messages in a swap as read for the current user
+ * @route   PUT /api/swaps/:swapId/messages/read
+ * @access  Private
+ */
+export const markMessagesAsRead = async (req, res) => {
+  const { swapId } = req.params;
+  const userId = req.user.id;
   try {
-    const message = await Message.findById(req.params.id);
-    if (!message) return res.status(404).json({ error: 'Message not found' });
-    res.json(message);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Update a message (e.g., mark as read)
-export const updateMessage = async (req, res) => {
-  try {
-    const message = await Message.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!message) return res.status(404).json({ error: 'Message not found' });
-    res.json(message);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-// Delete a message
-export const deleteMessage = async (req, res) => {
-  try {
-    const message = await Message.findByIdAndDelete(req.params.id);
-    if (!message) return res.status(404).json({ error: 'Message not found' });
-    res.json({ message: 'Message deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    await Message.updateMany(
+      { swap: swapId, recipient: userId, isRead: false },
+      { $set: { isRead: true, readAt: new Date() } }
+    );
+    res.status(200).json({ message: 'Messages marked as read.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error marking messages as read.' });
   }
 };

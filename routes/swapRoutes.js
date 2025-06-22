@@ -1,5 +1,5 @@
 import express from 'express';
-import { sendMessage, markMessagesAsRead, getMessagesForSwap } from '../controllers/messageController.js';
+import { sendMessage, markMessagesAsRead, getMessagesForSwap } from '../controllers/messageController.js'; // Import new functions
 import { authenticate } from '../middlewares/authMiddleware.js'; // Assuming you have auth middleware
 
 const router = express.Router();

@@ -6,16 +6,17 @@ import cors from "cors";
 // Import routes
 import testRoutes from "./routes/testRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import communityForumRoutes from "./routes/communityForumRoutes.js";
-import messageRoutes from "./routes/messageRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import swapRoutes from "./routes/swapRoutes.js"; // Import swap routes
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import gamificationRoutes from "./routes/gamificationRoutes.js";
 import tutorUploadRoutes from "./routes/tutorUploadRoutes.js";
+import communityForumRoutes from "./routes/communityForumRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js"; // Import AI routes
 
 dotenv.config();
@@ -29,7 +30,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Restrict to frontend URL in production
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
   }
@@ -149,8 +150,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/test", testRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/community-forum", communityForumRoutes);
-app.use("/api/messages", messageRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -159,6 +158,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/tutor-upload", tutorUploadRoutes);
+app.use("/api/community-forum", communityForumRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/swaps", swapRoutes); // Mount swap routes
 app.use("/api/ai", aiRoutes); // Use AI routes
 
 // Error handling middleware
