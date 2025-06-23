@@ -17,6 +17,7 @@ import gamificationRoutes from "./routes/gamificationRoutes.js";
 import tutorUploadRoutes from "./routes/tutorUploadRoutes.js";
 import communityForumRoutes from "./routes/communityForumRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import userRoutes from "./routes/userRoutes.js"; // Import user routes
 import aiRoutes from "./routes/aiRoutes.js"; // Import AI routes
 
 dotenv.config();
@@ -160,6 +161,7 @@ app.use("/api/gamification", gamificationRoutes);
 app.use("/api/tutor-upload", tutorUploadRoutes);
 app.use("/api/community-forum", communityForumRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes); // Mount user routes
 app.use("/api/swaps", swapRoutes); // Mount swap routes
 app.use("/api/ai", aiRoutes); // Use AI routes
 
