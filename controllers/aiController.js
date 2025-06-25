@@ -16,7 +16,7 @@ const generateContextPrompt = (message, context) => {
   let prompt = `User message: "${message}"\n\n`;
   switch (context) {
     case 'home':
-      prompt += "The user is on the home screen of a skill-sharing app called SkillSwap. They might be looking for courses, skill exchanges, or community features. Respond as a helpful AI assistant for SkillSwap, guiding them to explore the app's features based on their message.";
+      prompt += "The user is currently viewing the home screen of SkillSwap, a platform for sharing and learning skills. They may want to discover available courses, participate in skill exchanges, or use community options. As an AI assistant for SkillSwap, help guide them to relevant features or answer their questions based on their message.";
       break;
     case 'courses':
       prompt += "The user is browsing courses on SkillSwap. They might be asking about specific topics, recommendations, or course details. Respond as a helpful AI assistant for SkillSwap, focusing on course-related information.";
