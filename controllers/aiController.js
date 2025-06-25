@@ -1,11 +1,7 @@
-import axios from 'axios';
 import asyncHandler from '../utils/asyncHandler.js'; // Use only the correct path
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import User from '../models/userModel.js';
-import Course from '../models/courseModel.js';
-import SkillSwap from '../models/skillSwapModel.js';
 import dotenv from 'dotenv';
-
+ 
 dotenv.config();
 
 // @desc    Chat with AI Assistant
