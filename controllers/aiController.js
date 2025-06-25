@@ -1,4 +1,15 @@
-import asyncHandler from '../middleware/asyncHandler.js';
+import asyncHandler from '../middleware/asyncHandler.js'; // Assuming this path
+import asyncHandler from '../utils/asyncHandler.js'; // Corrected path
+import axios from 'axios';
+import asyncHandler from '../middleware/asyncHandler.js'; // Assuming this path
+import asyncHandler from '../utils/asyncHandler.js'; // Corrected path
+import User from '../models/userModel.js';
+import Course from '../models/courseModel.js';
+import SkillSwap from '../models/skillSwapModel.js';
+
+
+// @desc    Chat with AI Assistant
+
 
 // @desc    Chat with AI Assistant
 // @route   POST /api/ai/chat
