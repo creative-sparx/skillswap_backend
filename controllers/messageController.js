@@ -1,4 +1,4 @@
-import Message from '../models/Message.js';
+import { Message } from '../models/Message.js'; // Corrected to named import (path relative to new controllers directory)
 import SkillSwap from '../models/SkillSwap.js';
 import { io } from '../server.js'; // Import the Socket.IO instance
 import { sendPushNotification } from '../services/notificationService.js';
@@ -31,15 +31,6 @@ export const sendMessage = async (req, res) => {
       content: content,
       repliedToMessageId: repliedToMessageId, // Add reply support
     });
-
-    // If it's a reply, fetch the original message details to embed
-    if (repliedToMessageId) {
-      const originalMessage = await Message.findById(repliedToMessageId).select('content sender');
-      if (originalMessage) {
-        newMessage.repliedToMessageContent = originalMessage.content;
-        newMessage.repliedToSender = originalMessage.sender;
-      }
-    }
     await newMessage.save();
 
     // Populate for real-time and push notification
@@ -56,12 +47,7 @@ export const sendMessage = async (req, res) => {
     if (recipient.fcmTokens && recipient.fcmTokens.length > 0) {
       const notificationTitle = `New message from ${newMessage.sender.username}`;
       const notificationBody = content.length > 100 ? `${content.substring(0, 97)}...` : content;
-      await sendPushNotification(recipient.fcmTokens, notificationTitle, notificationBody, {
-        type: 'new_message',
-        swapId: swapId,
-        route: '/chat', // Specify the route to navigate to
-        arguments: { swapId: swapId, userName: newMessage.sender.username, userAvatar: newMessage.sender.avatar } // Pass arguments for the route
-      });
+      await sendPushNotification(recipient.fcmTokens, notificationTitle, notificationBody, { type: 'new_message', swapId: swapId });
     }
 
     res.status(201).json(newMessage);

@@ -1,4 +1,4 @@
-import Message from '../models/Message.js';
+import { Message } from '../models/Message.js'; // Corrected to named import
 import SkillSwap from '../models/SkillSwap.js';
 import { io } from '../server.js'; // Import the Socket.IO instance
 import { sendPushNotification } from '../services/notificationService.js';
@@ -94,4 +94,3 @@ export const markMessagesAsRead = async (req, res) => {
     res.status(500).json({ message: 'Server error marking messages as read.' });
   }
 };
-
