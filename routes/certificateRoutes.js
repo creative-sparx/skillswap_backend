@@ -7,7 +7,7 @@ import {
   updateCertificate,
   deleteCertificate
 } from '../controllers/certificateController.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get('/:id', getCertificateById);
 // Protected: Create certificate
 router.post(
   '/',
-  authenticate,
+  protect,
   [
     body('user').isMongoId(),
     body('course').isMongoId(),
@@ -32,7 +32,7 @@ router.post(
 // Protected: Update certificate
 router.put(
   '/:id',
-  authenticate,
+  protect,
   [
     body('certificateNumber').optional().isString().isLength({ min: 6, max: 64 })
   ],
@@ -40,6 +40,6 @@ router.put(
 );
 
 // Protected: Delete certificate
-router.delete('/:id', authenticate, deleteCertificate);
+router.delete('/:id', protect, deleteCertificate);
 
 export default router;
