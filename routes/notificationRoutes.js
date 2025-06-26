@@ -7,20 +7,20 @@ import {
   updateNotification,
   deleteNotification
 } from '../controllers/notificationController.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // Protected: Get all notifications (optionally filter by recipient/type)
-router.get('/', authenticate, getAllNotifications);
+router.get('/', protect, getAllNotifications);
 
 // Protected: Get notification by ID
-router.get('/:id', authenticate, getNotificationById);
+router.get('/:id', protect, getNotificationById);
 
 // Protected: Create notification
 router.post(
   '/',
-  authenticate,
+  protect,
   [
     body('recipient').isMongoId(),
     body('type').isIn(['message', 'forum', 'exchange', 'system']),
@@ -32,7 +32,7 @@ router.post(
 // Protected: Update notification (e.g., mark as read)
 router.put(
   '/:id',
-  authenticate,
+  protect,
   [
     body('read').optional().isBoolean(),
     body('content').optional().isString().isLength({ min: 1, max: 1000 })
@@ -41,6 +41,6 @@ router.put(
 );
 
 // Protected: Delete notification
-router.delete('/:id', authenticate, deleteNotification);
+router.delete('/:id', protect, deleteNotification);
 
 export default router;
