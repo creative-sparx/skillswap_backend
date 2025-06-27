@@ -149,21 +149,41 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/test", testRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/certificates", certificateRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/search", searchRoutes);
-app.use("/api/gamification", gamificationRoutes);
-app.use("/api/tutor-upload", tutorUploadRoutes);
-app.use("/api/community-forum", communityForumRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/users", userRoutes); // Mount user routes
-app.use("/api/swaps", swapRoutes); // Mount swap routes
-app.use("/api/ai", aiRoutes); // Use AI routes
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Helper function to safely mount routes
+const safelyMountRoute = (path, router, name) => {
+  try {
+    app.use(path, router);
+    console.log(`✅ Mounted ${name} routes at ${path}`);
+  } catch (error) {
+    console.error(`❌ Failed to mount ${name} routes at ${path}:`, error.message);
+  }
+};
+
+// Mount routes with error handling
+safelyMountRoute("/api/test", testRoutes, "test");
+safelyMountRoute("/api/auth", authRoutes, "auth");
+safelyMountRoute("/api/certificates", certificateRoutes, "certificate");
+safelyMountRoute("/api/notifications", notificationRoutes, "notification");
+safelyMountRoute("/api/upload", uploadRoutes, "upload");
+safelyMountRoute("/api/payments", paymentRoutes, "payment");
+safelyMountRoute("/api/admin", adminRoutes, "admin");
+safelyMountRoute("/api/search", searchRoutes, "search");
+safelyMountRoute("/api/gamification", gamificationRoutes, "gamification");
+safelyMountRoute("/api/tutor-upload", tutorUploadRoutes, "tutor-upload");
+safelyMountRoute("/api/community-forum", communityForumRoutes, "community-forum");
+safelyMountRoute("/api/messages", messageRoutes, "message");
+safelyMountRoute("/api/users", userRoutes, "user");
+safelyMountRoute("/api/swaps", swapRoutes, "swap");
+safelyMountRoute("/api/ai", aiRoutes, "ai");
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -184,8 +204,10 @@ app.use("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 SkillSwap Server running on port ${PORT}`);
+const HOST = process.env.HOST || '0.0.0.0';
+
+server.listen(PORT, HOST, () => {
+  console.log(`🚀 SkillSwap Server running on ${HOST}:${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔌 Socket.io enabled on port ${PORT}`);
 });

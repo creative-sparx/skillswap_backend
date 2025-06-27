@@ -14,6 +14,12 @@ export const sendPushNotification = async (targetTokens, title, body, data = {})
     return;
   }
 
+  // Check if Firebase is initialized
+  if (!admin.isInitialized()) {
+    console.warn('Firebase Admin SDK not initialized. Push notification skipped.');
+    return { success: false, message: 'Firebase not initialized' };
+  }
+
   const message = {
     notification: {
       title: title,

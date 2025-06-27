@@ -5,9 +5,11 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
-      # Add your secrets in the Render dashboard or here
+      - key: HOST
+        value: 0.0.0.0
+      # Port will be automatically set by Render
+      # Add your secrets in the Render dashboard
