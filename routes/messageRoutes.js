@@ -1,46 +1,32 @@
 import express from 'express';
 import { body } from 'express-validator';
 import {
-  createMessage,
-  getAllMessages,
-  getMessageById,
-  updateMessage,
-  deleteMessage
+  sendMessage,
+  getMessagesForSwap,
+  markMessagesAsRead
 } from '../controllers/messageController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Protected: Get all messages (optionally filter by sender/receiver)
-router.get('/', protect, getAllMessages);
-
-// Protected: Get message by ID
-router.get('/:id', protect, getMessageById);
-
-// Protected: Create message
+// Protected: Send a message within a swap
+// POST /api/messages/swap/:swapId
 router.post(
-  '/',
+  '/swap/:swapId',
   protect,
   [
-    body('sender').isMongoId(),
-    body('receiver').isMongoId(),
-    body('content').isString().isLength({ min: 1, max: 2000 })
+    body('content').isString().isLength({ min: 1, max: 1000 }),
+    body('repliedToMessageId').optional().isMongoId()
   ],
-  createMessage
+  sendMessage
 );
 
-// Protected: Update message (e.g., mark as read)
-router.put(
-  '/:id',
-  protect,
-  [
-    body('read').optional().isBoolean(),
-    body('content').optional().isString().isLength({ min: 1, max: 2000 })
-  ],
-  updateMessage
-);
+// Protected: Get all messages for a specific swap
+// GET /api/messages/swap/:swapId
+router.get('/swap/:swapId', protect, getMessagesForSwap);
 
-// Protected: Delete message
-router.delete('/:id', protect, deleteMessage);
+// Protected: Mark messages as read for a swap
+// PUT /api/messages/swap/:swapId/read
+router.put('/swap/:swapId/read', protect, markMessagesAsRead);
 
 export default router;
