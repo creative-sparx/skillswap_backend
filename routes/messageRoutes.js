@@ -7,20 +7,20 @@ import {
   updateMessage,
   deleteMessage
 } from '../controllers/messageController.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // Protected: Get all messages (optionally filter by sender/receiver)
-router.get('/', authenticate, getAllMessages);
+router.get('/', protect, getAllMessages);
 
 // Protected: Get message by ID
-router.get('/:id', authenticate, getMessageById);
+router.get('/:id', protect, getMessageById);
 
 // Protected: Create message
 router.post(
   '/',
-  authenticate,
+  protect,
   [
     body('sender').isMongoId(),
     body('receiver').isMongoId(),
@@ -32,7 +32,7 @@ router.post(
 // Protected: Update message (e.g., mark as read)
 router.put(
   '/:id',
-  authenticate,
+  protect,
   [
     body('read').optional().isBoolean(),
     body('content').optional().isString().isLength({ min: 1, max: 2000 })
@@ -41,6 +41,6 @@ router.put(
 );
 
 // Protected: Delete message
-router.delete('/:id', authenticate, deleteMessage);
+router.delete('/:id', protect, deleteMessage);
 
 export default router;

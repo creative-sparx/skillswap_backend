@@ -8,26 +8,26 @@ import {
   addComment,
   upvotePost
 } from '../controllers/communityForumController.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // These routes are based on the frontend's `forum_api.dart`
 router.route('/')
   .get(getPosts)
-  .post(authenticate, createPost);
+  .post(protect, createPost);
 
 router.route('/:id')
   .get(getPostById);
 
 router.route('/:id/comments')
   .get(getComments)
-  .post(authenticate, addComment);
+  .post(protect, addComment);
 
 router.route('/:id/upvote')
-  .post(authenticate, upvotePost);
+  .post(protect, upvotePost);
 
 router.route('/:id/report')
-  .post(authenticate, reportPost); // The new route for flagging
+  .post(protect, reportPost); // The new route for flagging
 
 export default router;

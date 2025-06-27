@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middlewares/uploadMiddleware.js';
-import { authenticate } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 import { body } from 'express-validator';
 import {
   uploadLessonVideo,
@@ -13,7 +13,7 @@ const router = express.Router();
 // Upload lesson video
 router.post(
   '/lesson-video',
-  authenticate,
+  protect,
   upload.single('file'),
   [body('courseId').isMongoId(), body('lessonIndex').isInt({ min: 0 })],
   uploadLessonVideo
@@ -22,7 +22,7 @@ router.post(
 // Upload course thumbnail
 router.post(
   '/thumbnail',
-  authenticate,
+  protect,
   upload.single('file'),
   [body('courseId').isMongoId()],
   uploadCourseThumbnail
@@ -31,7 +31,7 @@ router.post(
 // Upload lesson resource (PDF, slide, etc.)
 router.post(
   '/lesson-resource',
-  authenticate,
+  protect,
   upload.single('file'),
   [body('courseId').isMongoId(), body('lessonIndex').isInt({ min: 0 })],
   uploadLessonResource
