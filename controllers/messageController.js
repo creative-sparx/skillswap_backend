@@ -1,4 +1,4 @@
-import { Message } from '../models/Message.js'; // Corrected to named import (path relative to new controllers directory)
+import Message from '../models/Message.js';
 import SkillSwap from '../models/SkillSwap.js';
 import { io } from '../server.js'; // Import the Socket.IO instance
 import { sendPushNotification } from '../services/notificationService.js';
