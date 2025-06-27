@@ -8,6 +8,8 @@
 # Firebase Admin SDK credentials
 # This file contains sensitive service account keys.
 firebase-adminsdk.json
+firebase-service-account-key.json
+firebase-adminsdk-sample.json
 
 # Logs
 *.log

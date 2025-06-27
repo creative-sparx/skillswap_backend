@@ -3,6 +3,9 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 
+// Initialize Firebase Admin SDK
+import './config/firebase.js';
+
 // Import routes
 import testRoutes from "./routes/testRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -19,6 +22,7 @@ import communityForumRoutes from "./routes/communityForumRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import userRoutes from "./routes/userRoutes.js"; // Import user routes
 import aiRoutes from "./routes/aiRoutes.js"; // Import AI routes
+import firebaseTestRoutes from "./routes/firebaseTestRoutes.js"; // Import Firebase test routes
 
 dotenv.config();
 
@@ -168,7 +172,7 @@ const safelyMountRoute = (path, router, name) => {
   }
 };
 
-// Mount routes with error handling
+// Mount routes with error handling - temporarily disable some to isolate issue
 safelyMountRoute("/api/test", testRoutes, "test");
 safelyMountRoute("/api/auth", authRoutes, "auth");
 safelyMountRoute("/api/certificates", certificateRoutes, "certificate");

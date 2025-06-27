@@ -64,13 +64,21 @@ export const sendMessage = async (req, res) => {
  */
 export const getMessagesForSwap = async (req, res) => {
   const { swapId } = req.params;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 50; // Default to 50 messages per page
+  const skip = (page - 1) * limit;
+
   try {
     const messages = await Message.find({ swap: swapId })
       .populate('sender', 'username avatar')
       .populate('recipient', 'username avatar')
       .populate('repliedToSender', 'username')
-      .sort({ createdAt: 1 });
-    res.json(messages);
+      .sort({ createdAt: -1 }) // Sort by newest first for pagination
+      .skip(skip)
+      .limit(limit);
+
+    // Reverse the array so they are in chronological order for the client
+    res.json(messages.reverse());
   } catch (error) {
     res.status(500).json({ message: 'Server error fetching messages.' });
   }
