@@ -5,30 +5,30 @@ const skillSwapSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, 'A title is required for the skill swap.'],
-      trim: true,
+      trim: true
     },
     description: {
       type: String, 
-      required: [true, 'A description is required.'],
+      required: [true, 'A description is required.']
     },
     // The user who initiated the swap
     initiator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: true
     },
     // Both users involved in the swap
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
+        ref: 'User'
+      }
     ],
     status: {
       type: String,
       enum: ['pending', 'active', 'completed', 'cancelled'],
-      default: 'pending',
-    },
+      default: 'pending'
+    }
   },
   { timestamps: true }
 );

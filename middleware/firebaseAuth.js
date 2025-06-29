@@ -12,7 +12,7 @@ export const verifyFirebaseToken = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. No valid token provided.',
+        message: 'Access denied. No valid token provided.'
       });
     }
 
@@ -22,7 +22,7 @@ export const verifyFirebaseToken = async (req, res, next) => {
     if (!idToken) {
       return res.status(401).json({
         success: false,
-        message: 'Access denied. Invalid token format.',
+        message: 'Access denied. Invalid token format.'
       });
     }
 
@@ -33,7 +33,7 @@ export const verifyFirebaseToken = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: 'Access denied. Invalid or expired token.',
-        error: result.error,
+        error: result.error
       });
     }
 
@@ -46,7 +46,7 @@ export const verifyFirebaseToken = async (req, res, next) => {
     console.error('Firebase auth middleware error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Internal server error during authentication.',
+      message: 'Internal server error during authentication.'
     });
   }
 };
@@ -89,7 +89,7 @@ export const requireAdmin = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required.',
+        message: 'Authentication required.'
       });
     }
 
@@ -99,7 +99,7 @@ export const requireAdmin = async (req, res, next) => {
     if (!isAdmin) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Admin privileges required.',
+        message: 'Access denied. Admin privileges required.'
       });
     }
 
@@ -108,7 +108,7 @@ export const requireAdmin = async (req, res, next) => {
     console.error('Admin auth middleware error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Internal server error during admin verification.',
+      message: 'Internal server error during admin verification.'
     });
   }
 };
@@ -122,7 +122,7 @@ export const requireModerator = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required.',
+        message: 'Authentication required.'
       });
     }
 
@@ -136,7 +136,7 @@ export const requireModerator = async (req, res, next) => {
     if (!hasModeratorAccess) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Moderator privileges required.',
+        message: 'Access denied. Moderator privileges required.'
       });
     }
 
@@ -145,7 +145,7 @@ export const requireModerator = async (req, res, next) => {
     console.error('Moderator auth middleware error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Internal server error during moderator verification.',
+      message: 'Internal server error during moderator verification.'
     });
   }
 };
@@ -160,7 +160,7 @@ export const requireOwnership = (userIdParam = 'userId') => {
       if (!req.user) {
         return res.status(401).json({
           success: false,
-          message: 'Authentication required.',
+          message: 'Authentication required.'
         });
       }
 
@@ -173,7 +173,7 @@ export const requireOwnership = (userIdParam = 'userId') => {
       if (!isAdmin && resourceUserId !== currentUserId) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. You can only access your own resources.',
+          message: 'Access denied. You can only access your own resources.'
         });
       }
 
@@ -182,7 +182,7 @@ export const requireOwnership = (userIdParam = 'userId') => {
       console.error('Ownership auth middleware error:', error);
       return res.status(500).json({
         success: false,
-        message: 'Internal server error during ownership verification.',
+        message: 'Internal server error during ownership verification.'
       });
     }
   };
@@ -193,5 +193,5 @@ export default {
   optionalFirebaseAuth,
   requireAdmin,
   requireModerator,
-  requireOwnership,
+  requireOwnership
 };

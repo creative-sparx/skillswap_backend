@@ -1,120 +1,81 @@
-// Payment Controller for Stripe integration
-import stripe from '../config/stripe.js';
-import User from '../models/User.js';
-import Course from '../models/Course.js';
+import { io } from '../server.js';
 
-// Create a Stripe Checkout Session for course purchase
-export const createCheckoutSession = async (req, res) => {
-  try {
-    const { courseId } = req.body;
-    const course = await Course.findById(courseId);
-    if (!course || course.price <= 0) {
-      return res.status(400).json({ error: 'Invalid course or price' });
-    }
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: course.title,
-              description: course.description,
-            },
-            unit_amount: Math.round(course.price * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/payment-cancelled`,
-      metadata: {
-        courseId: course._id.toString(),
-        tutorId: course.tutor.toString(),
-        buyerId: req.user._id.toString(),
-      },
-    });
-    res.json({ url: session.url });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+// TODO: Import your necessary models for your business logic
+// import Transaction from '../models/Transaction.js';
+// import User from '../models/User.js';
+// import Course from '../models/Course.js';
 
-// Create a Stripe Subscription (for premium features)
-export const createSubscription = async (req, res) => {
-  try {
-    const { priceId } = req.body; // Stripe price ID for subscription
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    // Create customer if not exists
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.fullName,
-      });
-      user.stripeCustomerId = customer.id;
-      await user.save();
-      customerId = customer.id;
-    }
-    // Create subscription
-    const subscription = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [{ price: priceId }],
-      payment_behavior: 'default_incomplete',
-      expand: ['latest_invoice.payment_intent'],
-    });
-    res.json(subscription);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+/**
+ * @desc    Handle Flutterwave webhook events to confirm payment status.
+ * @route   POST /api/payments/flutterwave-webhook
+ * @access  Public (secured by a secret hash from Flutterwave)
+ */
+export const handleFlutterwaveWebhook = async (req, res) => {
+  // 1. Verify the webhook signature to ensure it's from Flutterwave
+  const secretHash = process.env.FLUTTERWAVE_SECRET_KEY;
+  const signature = req.headers['verif-hash'];
 
-// Create a Stripe payout for tutors (requires Stripe Connect)
-export const createPayout = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user || !user.stripeAccountId) {
-      return res.status(400).json({ error: 'No Stripe account linked' });
-    }
-    const { amount } = req.body;
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'Invalid payout amount' });
-    }
-    const payout = await stripe.payouts.create({
-      amount: Math.round(amount * 100),
-      currency: 'usd',
-      destination: user.stripeAccountId,
-    });
-    res.json(payout);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  if (!signature || (signature !== secretHash)) {
+    // This request isn't from Flutterwave. Discard and log for security.
+    console.warn('Webhook received with invalid signature.');
+    return res.status(401).send('Invalid signature');
   }
-};
 
-// Stripe webhook handler
-export const stripeWebhook = async (req, res) => {
-  let event = req.body;
-  const sig = req.headers['stripe-signature'];
-  try {
-    if (process.env.STRIPE_WEBHOOK_SECRET) {
-      event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  console.log('Flutterwave webhook received and verified.');
+
+  // 2. Process the event payload from the request body
+  const payload = req.body;
+  const eventType = payload.event;
+  const data = payload.data;
+
+  console.log(`Processing event: ${eventType}`);
+
+  // 3. Handle the 'charge.completed' event specifically
+  if (eventType === 'charge.completed') {
+    // Check if the transaction was successful
+    if (data.status === 'successful') {
+      const transactionRef = data.tx_ref; // The unique reference you provided
+      const amount = data.amount;
+      const currency = data.currency;
+      const customerEmail = data.customer.email;
+
+      console.log(`Successful payment for transaction reference: ${transactionRef}`);
+
+      try {
+        // --- YOUR BUSINESS LOGIC GOES HERE ---
+        // 1. Find the transaction in your database using `transactionRef`.
+        //    Example: const transaction = await Transaction.findOne({ tx_ref: transactionRef });
+
+        // 2. Verify that the transaction hasn't already been processed to prevent duplicates.
+        //    Example: if (transaction.status === 'successful') { return res.status(200).send('Event already handled'); }
+
+        // 3. Verify the payment amount and currency match what you expect.
+        //    Example: if (transaction.amount !== amount || transaction.currency !== currency) { /* handle mismatch */ }
+
+        // 4. Update the transaction status in your database to 'successful'.
+        //    Example: transaction.status = 'successful'; await transaction.save();
+
+        // 5. Grant the user access to the purchased item (e.g., enroll in a course).
+        //    Example: const user = await User.findById(transaction.userId);
+        //             user.enrolledCourses.push(transaction.courseId);
+        //             await user.save();
+
+        // 6. Send a real-time notification to the user via Socket.IO.
+        //    Example: io.to(user._id.toString()).emit('payment_success', { message: 'Payment successful!' });
+
+        console.log(`Successfully processed payment for ${customerEmail}`);
+      } catch (error) {
+        console.error('Error processing webhook:', error);
+        // Return a 500 status to let Flutterwave know something went wrong.
+        // Flutterwave will attempt to retry sending the webhook.
+        return res.status(500).send('Internal Server Error');
+      }
+    } else {
+      // Handle other statuses like 'failed'
+      console.log(`Payment status for tx_ref ${data.tx_ref} is '${data.status}'.`);
     }
-    // Handle event types
-    switch (event.type) {
-      case 'checkout.session.completed':
-        // TODO: Mark course as purchased, notify tutor, etc.
-        break;
-      case 'invoice.payment_succeeded':
-        // TODO: Handle subscription payment
-        break;
-      // Add more event types as needed
-      default:
-        break;
-    }
-    res.json({ received: true });
-  } catch (err) {
-    res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
+
+  // Acknowledge receipt of the event to Flutterwave
+  res.status(200).send('Webhook received');
 };

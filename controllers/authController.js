@@ -6,7 +6,7 @@ import { validationResult } from 'express-validator';
 // Generate JWT token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '30d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '30d'
   });
 };
 
@@ -71,7 +71,10 @@ export const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    // Log error for debugging (replace with proper logging in production)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Registration error:', error);
+    }
     res.status(500).json({
       success: false,
       message: 'Server error during registration'
@@ -145,7 +148,10 @@ export const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    // Log error for debugging (replace with proper logging in production)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Login error:', error);
+    }
     res.status(500).json({
       success: false,
       message: 'Server error during login'
@@ -201,7 +207,10 @@ export const getProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    // Log error for debugging (replace with proper logging in production)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Get profile error:', error);
+    }
     res.status(500).json({
       success: false,
       message: 'Server error fetching profile'

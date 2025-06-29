@@ -5,13 +5,19 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.29.0",
@@ -27,7 +33,16 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "multer-storage-cloudinary": "^4.0.0",
-    "socket.io": "^4.7.5"
+    "node-cron": "^4.1.1",
+    "socket.io": "^4.7.5",
+    "winston": "^3.17.0"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "eslint": "^9.30.0",
+    "jest": "^30.0.3",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
+  }
 }

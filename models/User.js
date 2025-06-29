@@ -181,6 +181,24 @@ const userSchema = new mongoose.Schema({
   stripeCustomerId: String,
   stripeAccountId: String,
   
+  // Subscription & Premium Features
+  isPro: {
+    type: Boolean,
+    default: false
+  },
+  subscription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SubscriptionPlan',
+    default: null
+  },
+  subscriptionStatus: {
+    type: String,
+    enum: ['active', 'inactive', 'cancelled', 'past_due', 'unpaid'],
+    default: 'inactive'
+  },
+  subscriptionStartDate: Date,
+  subscriptionEndDate: Date,
+  
   // Settings & Preferences
   preferences: {
     notifications: {
@@ -282,7 +300,7 @@ userSchema.virtual('isLocked').get(function() {
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {
   // Only hash password if it's been modified
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {return next();}
   
   try {
     // Hash password with cost of 12
@@ -302,7 +320,7 @@ userSchema.pre('save', function(next) {
 
 // Instance method to check password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  if (!this.password) return false;
+  if (!this.password) {return false;}
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

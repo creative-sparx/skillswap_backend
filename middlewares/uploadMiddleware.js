@@ -6,8 +6,8 @@ import cloudinary from '../config/cloudinary.js';
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    let folder = 'skillswap_uploads';
-    let resource_type = 'auto'; // auto-detect image/video/raw
+    const folder = 'skillswap_uploads';
+    const resource_type = 'auto'; // auto-detect image/video/raw
     return {
       folder,
       resource_type,

@@ -15,17 +15,17 @@ const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 const generateContextPrompt = (message, context) => {
   let prompt = `User message: "${message}"\n\n`;
   switch (context) {
-    case 'home':
-      prompt += "The user is currently viewing the home screen of SkillSwap, a platform for sharing and learning skills. They may want to discover available courses, participate in skill exchanges, or use community options. As an AI assistant for SkillSwap, help guide them to relevant features or answer their questions based on their message.";
-      break;
-    case 'courses':
-      prompt += "The user is browsing courses on SkillSwap. They might be asking about specific topics, recommendations, or course details. Respond as a helpful AI assistant for SkillSwap, focusing on course-related information.";
-      break;
-    case 'skill_exchange':
-      prompt += "The user is interested in skill exchanges on SkillSwap. They might be asking how it works, how to offer a skill, or how to request one. Respond as a helpful AI assistant for SkillSwap, focusing on skill exchange processes.";
-      break;
-    default:
-      prompt += "The user is interacting with a general AI assistant in a skill-sharing app called SkillSwap. Provide a helpful and relevant response based on their message, keeping the app's purpose in mind.";
+  case 'home':
+    prompt += 'The user is currently viewing the home screen of SkillSwap, a platform for sharing and learning skills. They may want to discover available courses, participate in skill exchanges, or use community options. As an AI assistant for SkillSwap, help guide them to relevant features or answer their questions based on their message.';
+    break;
+  case 'courses':
+    prompt += 'The user is browsing courses on SkillSwap. They might be asking about specific topics, recommendations, or course details. Respond as a helpful AI assistant for SkillSwap, focusing on course-related information.';
+    break;
+  case 'skill_exchange':
+    prompt += 'The user is interested in skill exchanges on SkillSwap. They might be asking how it works, how to offer a skill, or how to request one. Respond as a helpful AI assistant for SkillSwap, focusing on skill exchange processes.';
+    break;
+  default:
+    prompt += 'The user is interacting with a general AI assistant in a skill-sharing app called SkillSwap. Provide a helpful and relevant response based on their message, keeping the app\'s purpose in mind.';
   }
   return prompt;
 };
@@ -47,7 +47,9 @@ export const chatWithAi = asyncHandler(async (req, res) => {
     const reply = response.text();
     res.status(200).json({ success: true, reply }); // 200 OK
   } catch (error) {
-    console.error('Error communicating with Gemini API:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error communicating with Gemini API:', error);
+    }
     res.status(500).json({ success: false, message: 'Failed to get a response from AI. Please try again later.' }); // 500 Internal Server Error
   }
 });

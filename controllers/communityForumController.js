@@ -18,7 +18,9 @@ export const reportPost = async (req, res) => {
 
     res.status(200).json({ message: 'Post has been flagged for review.' });
   } catch (error) {
-    console.error(error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error(error);
+    }
     res.status(500).json({ message: 'Server Error' });
   }
 };

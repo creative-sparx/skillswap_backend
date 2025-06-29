@@ -23,13 +23,13 @@ export const sendPushNotification = async (targetTokens, title, body, data = {})
   const message = {
     notification: {
       title: title,
-      body: body,
+      body: body
     },
     data: {
       ...data,
-      click_action: 'FLUTTER_NOTIFICATION_CLICK', // Required for Flutter to handle the notification tap
+      click_action: 'FLUTTER_NOTIFICATION_CLICK' // Required for Flutter to handle the notification tap
     },
-    tokens: targetTokens,
+    tokens: targetTokens
   };
 
   try {

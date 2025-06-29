@@ -4,39 +4,39 @@ const communityForumSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true,
+    trim: true
   },
   content: {
     type: String,
-    required: true,
+    required: true
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
   tags: [{
     type: String,
-    trim: true,
+    trim: true
   }],
   upvotes: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User'
   }],
   comments: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment',
+    ref: 'Comment'
   }],
   flagged: {
     type: Boolean,
     default: false,
-    index: true, // Index for faster querying of flagged posts
+    index: true // Index for faster querying of flagged posts
   },
   attachment: {
-    type: String, // URL to the attachment
-  },
+    type: String // URL to the attachment
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
 export default mongoose.model('CommunityForum', communityForumSchema);

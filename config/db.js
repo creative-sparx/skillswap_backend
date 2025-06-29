@@ -1,15 +1,17 @@
- // config/db.js
-import mongoose from "mongoose";
+// config/db.js
+
+import mongoose from 'mongoose';
+import logger from './logger.js';
 
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     });
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    logger.info(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`❌ Error: ${error.message}`);
+    logger.error(`❌ Error: ${error.message}`);
     process.exit(1);
   }
 };

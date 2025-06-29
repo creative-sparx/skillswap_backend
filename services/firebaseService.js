@@ -33,7 +33,7 @@ class FirebaseService {
         password: userData.password,
         displayName: userData.displayName || `${userData.firstName} ${userData.lastName}`,
         emailVerified: false,
-        disabled: false,
+        disabled: false
       });
 
       if (result.success) {
@@ -142,7 +142,7 @@ class FirebaseService {
       const result = await setDocument('users', uid, {
         ...profileData,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
       return result;
     } catch (error) {
@@ -165,7 +165,7 @@ class FirebaseService {
     try {
       const result = await updateDocument('users', uid, {
         ...updateData,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
       return result;
     } catch (error) {
@@ -183,7 +183,7 @@ class FirebaseService {
         id: swapDoc.id,
         status: 'pending',
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
       
       if (result.success) {
@@ -202,7 +202,7 @@ class FirebaseService {
       const result = await updateDocument('swaps', swapId, {
         status,
         ...additionalData,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       });
       return result;
     } catch (error) {
@@ -303,7 +303,7 @@ class FirebaseService {
         userId: uid,
         activity,
         metadata,
-        timestamp: new Date(),
+        timestamp: new Date()
       });
       
       return result;
@@ -321,7 +321,7 @@ class FirebaseService {
         swapId,
         event,
         metadata,
-        timestamp: new Date(),
+        timestamp: new Date()
       });
       
       return result;

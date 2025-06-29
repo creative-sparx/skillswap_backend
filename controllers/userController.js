@@ -16,7 +16,7 @@ export const addFCMToken = async (req, res) => {
   try {
     // Add the new token to the user's fcmTokens array, avoiding duplicates
     await User.findByIdAndUpdate(userId, {
-      $addToSet: { fcmTokens: token },
+      $addToSet: { fcmTokens: token }
     });
 
     res.status(200).json({ message: 'FCM token updated successfully.' });

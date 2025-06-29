@@ -19,17 +19,17 @@ export const sendMessage = async (req, res) => {
 
   try {
     const swap = await SkillSwap.findById(swapId).populate('participants', 'username fcmTokens');
-    if (!swap) return res.status(404).json({ message: 'Skill swap not found.' });
+    if (!swap) {return res.status(404).json({ message: 'Skill swap not found.' });}
 
     const recipient = swap.participants.find(p => p._id.toString() !== senderId);
-    if (!recipient) return res.status(404).json({ message: 'Recipient not found.' });
+    if (!recipient) {return res.status(404).json({ message: 'Recipient not found.' });}
 
     const newMessage = new Message({
       swap: swapId,
       sender: senderId,
       recipient: recipient._id,
       content: content,
-      repliedToMessageId: repliedToMessageId, // Add reply support
+      repliedToMessageId: repliedToMessageId // Add reply support
     });
     await newMessage.save();
 

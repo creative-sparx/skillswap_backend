@@ -11,6 +11,6 @@ export const exchangeStatusEmail = ({ userName, status, skill, exchangeUrl }) =>
 });
 
 export const adminAnnouncementEmail = ({ userName, message }) => ({
-  subject: `Announcement from SkillSwap Team`,
+  subject: 'Announcement from SkillSwap Team',
   html: `<p>Hi ${userName},</p><p>${message}</p>`
 });

@@ -19,7 +19,7 @@ router.get('/test-connection', async (req, res) => {
       message: 'Firebase services are connected successfully',
       tests: {
         auth: authTest ? 'Connected' : 'Failed',
-        firestore: firestoreTest ? 'Connected' : 'Failed',
+        firestore: firestoreTest ? 'Connected' : 'Failed'
       },
       timestamp: new Date().toISOString()
     });
@@ -54,7 +54,7 @@ router.post('/verify-token', async (req, res) => {
           uid: result.user.uid,
           email: result.user.email,
           email_verified: result.user.email_verified,
-          firebase: result.user.firebase,
+          firebase: result.user.firebase
         }
       });
     } else {

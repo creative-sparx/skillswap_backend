@@ -32,7 +32,6 @@
 
 ### 3. Third-Party Keys
 - **Cloudinary:** Get from [cloudinary.com](https://cloudinary.com/console)
-- **Stripe:** Get from [dashboard.stripe.com](https://dashboard.stripe.com/apikeys)
 - **MongoDB Atlas:** Get from [cloud.mongodb.com](https://cloud.mongodb.com/)
 - **SendGrid:** Get from [sendgrid.com](https://app.sendgrid.com/settings/api_keys)
 
