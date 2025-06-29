@@ -26,7 +26,7 @@ import authRoutes from './routes/authRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
-import featuredRoutes from './routes/featuredRoutes.js';
+import featuredRoutes from './routes/featured.js';
 
 dotenv.config();
 

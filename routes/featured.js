@@ -1,8 +1,6 @@
-const express = require('express');
-const { body, param, query } = require('express-validator');
-const router = express.Router();
-
-const {
+import express from 'express';
+import { body, param, query } from 'express-validator';
+import {
   getFeaturedItems,
   getFeaturedItem,
   trackFeaturedClick,
@@ -12,10 +10,11 @@ const {
   deleteFeaturedItem,
   toggleFeaturedStatus,
   getFeaturedAnalytics
-} = require('../controllers/featuredController');
+} from '../controllers/featuredController.js';
+import auth from '../middleware/auth.js';
+import adminMiddleware from '../middleware/admin.js';
 
-const auth = require('../middleware/auth');
-const adminMiddleware = require('../middleware/admin');
+const router = express.Router();
 
 // Validation rules
 const createFeaturedValidation = [
@@ -175,4 +174,4 @@ router.patch('/admin/:id/toggle', auth, adminMiddleware, mongoIdValidation, togg
 // GET /api/featured/admin/:id/analytics - Get featured item analytics
 router.get('/admin/:id/analytics', auth, adminMiddleware, mongoIdValidation, getFeaturedAnalytics);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const Featured = require('../models/Featured');
-const User = require('../models/User');
-const Course = require('../models/Course');
-const { validationResult } = require('express-validator');
+import Featured from '../models/Featured.js';
+import User from '../models/User.js';
+import Course from '../models/Course.js';
+import { validationResult } from 'express-validator';
 
 // Get all featured items (public)
 const getFeaturedItems = async (req, res) => {
@@ -440,7 +440,7 @@ const getFeaturedAnalytics = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getFeaturedItems,
   getFeaturedItem,
   trackFeaturedClick,
