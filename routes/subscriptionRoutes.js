@@ -1,7 +1,9 @@
-const express = require('express');
-const subscriptionController = require('../controllers/subscriptionController');
-const { protect, restrictTo } = require('../middleware/authMiddleware');
-const { validateSubscription } = require('../middleware/validationMiddleware');
+import express from 'express';
+import * as subscriptionController from '../controllers/subscriptionController.js';
+import auth from '../middleware/auth.js';
+import adminMiddleware from '../middleware/admin.js';
+import { handleValidationErrors } from '../middleware/validation.js';
+import { body } from 'express-validator';
 
 const router = express.Router();
 
@@ -10,7 +12,15 @@ router.get('/plans', subscriptionController.getSubscriptionPlans);
 router.post('/webhook', subscriptionController.handleWebhook);
 
 // Protected routes (require authentication)
-router.use(protect); // All routes below this middleware require authentication
+router.use(auth); // All routes below this middleware require authentication
+
+// Subscription validation middleware
+const validateSubscription = [
+  body('planId')
+    .isMongoId()
+    .withMessage('Valid plan ID is required'),
+  handleValidationErrors
+];
 
 router.post('/subscribe', validateSubscription, subscriptionController.initiateSubscription);
 router.post('/verify', subscriptionController.verifySubscription);
@@ -18,9 +28,9 @@ router.get('/my-subscription', subscriptionController.getMySubscription);
 router.post('/cancel', subscriptionController.cancelSubscription);
 
 // Admin routes (require admin role)
-router.use(restrictTo('admin')); // All routes below this middleware require admin role
+router.use(adminMiddleware); // All routes below this middleware require admin role
 
 router.post('/plans', subscriptionController.createSubscriptionPlan);
 router.put('/plans/:planId', subscriptionController.updateSubscriptionPlan);
 
-module.exports = router;
+export default router;

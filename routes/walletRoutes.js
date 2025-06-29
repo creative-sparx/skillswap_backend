@@ -7,14 +7,14 @@ import {
   verifyPayment,
   getTransactionSummary
 } from '../controllers/walletController.js';
-import authMiddleware from '../middleware/authMiddleware.js';
+import auth from '../middleware/auth.js';
 import { body, param, query } from 'express-validator';
-import { validateRequest } from '../middleware/validationMiddleware.js';
+import { handleValidationErrors } from '../middleware/validation.js';
 
 const router = express.Router();
 
 // All wallet routes require authentication
-router.use(authMiddleware);
+router.use(auth);
 
 // GET /api/wallet/balance - Get user's wallet balance
 router.get('/balance', getWalletBalance);
@@ -34,7 +34,7 @@ router.post('/topup', [
     .optional()
     .isURL()
     .withMessage('Invalid callback URL'),
-  validateRequest
+  handleValidationErrors
 ], initiateTopUp);
 
 // POST /api/wallet/deduct - Deduct tokens from wallet (internal use)
@@ -55,7 +55,7 @@ router.post('/deduct', [
     .optional()
     .isMongoId()
     .withMessage('Invalid certificate ID'),
-  validateRequest
+  handleValidationErrors
 ], deductTokens);
 
 // POST /api/wallet/verify-payment - Verify and complete payment
@@ -67,7 +67,7 @@ router.post('/verify-payment', [
     .optional()
     .isNumeric()
     .withMessage('Invalid transaction ID'),
-  validateRequest
+  handleValidationErrors
 ], verifyPayment);
 
 // GET /api/wallet/transactions - Get transaction history
@@ -96,7 +96,7 @@ router.get('/transactions', [
     .optional()
     .isISO8601()
     .withMessage('Invalid end date format'),
-  validateRequest
+  handleValidationErrors
 ], getTransactionHistory);
 
 // GET /api/wallet/summary - Get transaction summary
@@ -107,7 +107,7 @@ router.get('/transaction/:txRef', [
   param('txRef')
     .notEmpty()
     .withMessage('Transaction reference is required'),
-  validateRequest
+  handleValidationErrors
 ], async (req, res) => {
   try {
     const { txRef } = req.params;
@@ -157,7 +157,7 @@ router.post('/transfer', [
     .optional()
     .isLength({ max: 200 })
     .withMessage('Description must be less than 200 characters'),
-  validateRequest
+  handleValidationErrors
 ], async (req, res) => {
   try {
     // This is a placeholder for future P2P transfer functionality
