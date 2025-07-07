@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const featuredSchema = new mongoose.Schema({
   itemType: {
@@ -164,4 +164,4 @@ featuredSchema.methods.isCurrentlyActive = function() {
          this.endDate >= now;
 };
 
-module.exports = mongoose.model('Featured', featuredSchema);
+export default mongoose.model('Featured', featuredSchema);
