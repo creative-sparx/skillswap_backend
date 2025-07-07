@@ -1,7 +1,7 @@
 import Course from '../models/Course.js';
 import User from '../models/User.js';
-import asyncHandler from 'express-async-handler';
-import { AppError } from '../middleware/errorHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { AppError } from '../utils/errorHandler.js';
 
 // @desc    Get all courses with filters
 // @route   GET /api/courses

@@ -1,7 +1,7 @@
 import express from 'express';
 import { 
   getWalletBalance, 
-  initiateTopUp, 
+  initializeTopUp, 
   deductTokens, 
   getTransactionHistory,
   verifyPayment,
@@ -35,7 +35,7 @@ router.post('/topup', [
     .isURL()
     .withMessage('Invalid callback URL'),
   handleValidationErrors
-], initiateTopUp);
+], initializeTopUp);
 
 // POST /api/wallet/deduct - Deduct tokens from wallet (internal use)
 router.post('/deduct', [

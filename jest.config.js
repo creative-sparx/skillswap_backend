@@ -1,14 +1,9 @@
 export default {
   testEnvironment: 'node',
-  transform: {},
-  extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
-  moduleNameMapping: {
-    '^(\\.{1,2}/.*)\\.js$': '$1'
+  transform: {
+    '^.+\.js$': ['babel-jest', { 
+      presets: [['@babel/preset-env', { targets: { node: 'current' } }]]
+    }]
   },
   collectCoverageFrom: [
     'controllers/**/*.js',
@@ -24,5 +19,8 @@ export default {
     '**/__tests__/**/*.js',
     '**/?(*.)+(spec|test).js'
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  moduleFileExtensions: ['js', 'json'],
+  testPathIgnorePatterns: ['/node_modules/'],
+  verbose: true
 };

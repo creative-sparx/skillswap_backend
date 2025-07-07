@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middlewares/authMiddleware.js';
-import { addXP, unlockBadge, getLeaderboard } from '../controllers/gamificationController.js';
+import { addXP, unlockBadge, getLeaderboard, getBadges } from '../controllers/gamificationController.js';
 import { body, query } from 'express-validator';
 
 const router = express.Router();
@@ -24,5 +24,8 @@ router.post('/badge', protect, [
 router.get('/leaderboard', [
   query('limit').optional().isNumeric()
 ], getLeaderboard);
+
+// Get all badges (public)
+router.get('/badges', getBadges);
 
 export default router;

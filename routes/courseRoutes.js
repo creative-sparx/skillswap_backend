@@ -10,8 +10,8 @@ import {
   deleteCourse,
   getCourseAnalytics
 } from '../controllers/courseController.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { validateCourseCreation, validateCourseUpdate } from '../middleware/validation.js';
+import { protect } from '../middlewares/authMiddleware.js';
+import { validateCreateCourse, validateUpdateCourse } from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -28,8 +28,8 @@ router.get('/my/courses', getMyCourses);
 router.post('/:id/enroll', enrollInCourse);
 
 // Course CRUD operations
-router.post('/', validateCourseCreation, createCourse);
-router.put('/:id', validateCourseUpdate, updateCourse);
+router.post('/', validateCreateCourse, createCourse);
+router.put('/:id', validateUpdateCourse, updateCourse);
 router.delete('/:id', deleteCourse);
 
 // Analytics

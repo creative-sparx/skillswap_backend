@@ -26,9 +26,9 @@ import authRoutes from './routes/authRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import subscriptionPlanRoutes from './routes/subscriptionPlanRoutes.js';
 import featuredRoutes from './routes/featured.js';
 
-dotenv.config();
 
 
 import http from 'http';
@@ -37,8 +37,11 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import logger from './config/logger.js';
 
-// Import subscriptionService for cron job initialization
+dotenv.config();
+
+// Import services for cron job initialization
 import * as subscriptionService from './services/subscriptionService.js';
+import CronService from './services/cronService.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -129,7 +132,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+// Capture raw body for webhook signature verification
+app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging
@@ -150,15 +154,12 @@ app.use(limiter);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     logger.info('✅ MongoDB Connected Successfully');
-    // Initialize subscription cron jobs after DB connection
-    if (subscriptionService && typeof subscriptionService.initCronJobs === 'function') {
-      subscriptionService.initCronJobs();
-      logger.info('⏰ SubscriptionService cron jobs initialized.');
-    } else if (subscriptionService && subscriptionService.default && typeof subscriptionService.default.initCronJobs === 'function') {
-      subscriptionService.default.initCronJobs();
-      logger.info('⏰ SubscriptionService cron jobs initialized (default export).');
-    } else {
-      logger.warn('⚠️ SubscriptionService cron jobs NOT initialized: initCronJobs() not found.');
+    // Initialize comprehensive cron jobs after DB connection
+    try {
+      CronService.init();
+      logger.info('⏰ CronService initialized with all job types.');
+    } catch (error) {
+      logger.error('❌ Failed to initialize CronService:', error);
     }
   })
   .catch((err) => logger.error('❌ MongoDB Connection Error:', err));
@@ -200,6 +201,8 @@ const safelyMountRoute = (path, router, name) => {
 // Mount routes with error handling - temporarily disable some to isolate issue
 safelyMountRoute('/api/test', testRoutes, 'test');
 safelyMountRoute('/api/auth', authRoutes, 'auth');
+safelyMountRoute('/api/subscriptions', subscriptionRoutes, 'subscription');
+safelyMountRoute('/api/subscription-plans', subscriptionPlanRoutes, 'subscription-plans');
 safelyMountRoute('/api/certificates', certificateRoutes, 'certificate');
 safelyMountRoute('/api/subscriptions', subscriptionRoutes, 'subscription');
 safelyMountRoute('/api/featured', featuredRoutes, 'featured');
@@ -229,7 +232,7 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
     message: 'Route not found' 
@@ -246,3 +249,4 @@ server.listen(PORT, HOST, () => {
 });
 
 export { io };
+export default app;

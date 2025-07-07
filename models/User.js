@@ -1,3 +1,4 @@
+// @ts-nocheck
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -67,19 +68,19 @@ const userSchema = new mongoose.Schema({
     skill: String,
     level: {
       type: String,
-      enum: ['beginner', 'intermediate', 'advanced', 'expert'],
+      'enum': ['beginner', 'intermediate', 'advanced', 'expert'],
       default: 'beginner'
     },
     experience: String
   }],
   persona: {
     type: String,
-    enum: ['student', 'professional', 'hobbyist', 'entrepreneur', 'teacher', 'other'],
+    'enum': ['student', 'professional', 'hobbyist', 'entrepreneur', 'teacher', 'other'],
     default: 'student'
   },
   howDidYouHear: {
     type: String,
-    enum: ['social_media', 'friend', 'search_engine', 'advertisement', 'blog', 'other'],
+    'enum': ['social_media', 'friend', 'search_engine', 'advertisement', 'blog', 'other'],
     default: 'other'
   },
   
@@ -94,14 +95,14 @@ const userSchema = new mongoose.Schema({
   },
   accountStatus: {
     type: String,
-    enum: ['active', 'suspended', 'deactivated'],
+    'enum': ['active', 'suspended', 'deactivated'],
     default: 'active'
   },
   
   // Roles & Permissions
   role: {
     type: String,
-    enum: ['student', 'tutor', 'admin', 'moderator'],
+    'enum': ['student', 'tutor', 'admin', 'moderator'],
     default: 'student'
   },
   isTutor: {
@@ -114,13 +115,20 @@ const userSchema = new mongoose.Schema({
   },
   
   // Gamification
-  points: {
+  // Total experience points
+  xp: {
     type: Number,
-    default: 0
+    default: 0,
   },
+  // Consecutive daily streak count
+  streakDays: {
+    type: Number,
+    default: 0,
+  },
+  // Calculate by tracking lastLogin date and XP
   level: {
     type: Number,
-    default: 1
+    default: 1,
   },
   badges: [{
     name: String,
@@ -193,7 +201,7 @@ const userSchema = new mongoose.Schema({
   },
   subscriptionStatus: {
     type: String,
-    enum: ['active', 'inactive', 'cancelled', 'past_due', 'unpaid'],
+    'enum': ['active', 'inactive', 'cancelled', 'past_due', 'unpaid'],
     default: 'inactive'
   },
   subscriptionStartDate: Date,
@@ -218,7 +226,7 @@ const userSchema = new mongoose.Schema({
     privacy: {
       profileVisibility: {
         type: String,
-        enum: ['public', 'private', 'friends'],
+        'enum': ['public', 'private', 'friends'],
         default: 'public'
       },
       showEmail: {
@@ -274,8 +282,19 @@ userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 userSchema.index({ 'skillsToTeach.skill': 1 });
 userSchema.index({ interests: 1 });
-userSchema.index({ points: -1 });
+userSchema.index({ xp: -1 });
 userSchema.index({ createdAt: -1 });
+
+// Compound indexes for better query performance
+userSchema.index({ isPro: 1, subscriptionStatus: 1 });
+userSchema.index({ subscriptionEndDate: 1, subscriptionStatus: 1 });
+userSchema.index({ lastLogin: -1, isPro: 1 });
+userSchema.index({ role: 1, tutorVerified: 1 });
+userSchema.index({ location: 1, 'skillsToTeach.skill': 1 });
+userSchema.index({ xp: -1, level: -1 }); // For leaderboards
+userSchema.index({ lastLogin: -1, xp: 1 }); // For activity tracking
+userSchema.index({ isEmailVerified: 1, accountStatus: 1 });
+userSchema.index({ createdAt: -1, role: 1 }); // For admin queries
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function() {
@@ -353,10 +372,10 @@ userSchema.methods.resetLoginAttempts = function() {
 
 // Instance method to add points
 userSchema.methods.addPoints = function(points, reason = '') {
-  this.points += points;
+  this.xp += points;
   
   // Level up logic (every 1000 points = 1 level)
-  const newLevel = Math.floor(this.points / 1000) + 1;
+  const newLevel = Math.floor(this.xp / 1000) + 1;
   if (newLevel > this.level) {
     this.level = newLevel;
     // Could trigger level up badge/notification here
@@ -378,9 +397,9 @@ userSchema.statics.findByEmailOrUsername = function(identifier) {
 // Static method to get leaderboard
 userSchema.statics.getLeaderboard = function(limit = 10) {
   return this.find({ accountStatus: 'active' })
-    .sort({ points: -1 })
+    .sort({ xp: -1 })
     .limit(limit)
-    .select('username firstName lastName avatar points level badges');
+    .select('username firstName lastName avatar xp level badges');
 };
 
 export default mongoose.model('User', userSchema);

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import mongoose from 'mongoose';
 
 const communityForumSchema = new mongoose.Schema({
@@ -38,5 +39,8 @@ const communityForumSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Compound index to sort forums by author and creation date
+communityForumSchema.index({ author: 1, createdAt: -1 });
 
 export default mongoose.model('CommunityForum', communityForumSchema);

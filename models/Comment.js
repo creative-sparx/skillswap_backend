@@ -22,4 +22,8 @@ const commentSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Compound indexes for performance
+commentSchema.index({ author: 1, createdAt: -1 });
+commentSchema.index({ post: 1, createdAt: -1 });
+
 export default mongoose.model('Comment', commentSchema);

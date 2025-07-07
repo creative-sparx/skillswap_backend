@@ -159,11 +159,60 @@ export const login = async (req, res) => {
   }
 };
 
+// Google Sign-In handler
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const loginWithGoogle = async (req, res) => {
+const { idToken } = req.body;
+if (!idToken) {
+return res.status(400).json({ success: false, message: 'Missing idToken' });
+}
+try {
+const ticket = await googleClient.verifyIdToken({
+idToken,
+audience: process.env.GOOGLE_CLIENT_ID,
+});
+const payload = ticket.getPayload();
+const email = payload.email;
+let user = await User.findOne({ email });
+if (!user) {
+user = await User.create({
+firstName: payload.given_name || '',
+lastName: payload.family_name || '',
+email: payload.email,
+username: payload.email.split('@')[0],
+password: Math.random().toString(36).slice(-8),
+isEmailVerified: true,
+accountStatus: 'active',
+});
+}
+const token = generateToken(user._id);
+res.json({
+success: true,
+message: 'Login with Google successful',
+token,
+user: {
+id: user._id,
+firstName: user.firstName,
+lastName: user.lastName,
+email: user.email,
+username: user.username,
+role: user.role,
+},
+});
+} catch (error) {
+console.error('Google login error:', error);
+res.status(401).json({ success: false, message: 'Invalid Google token' });
+}
+};
+
 /**
- * @desc    Logout user (client-side token removal)
- * @route   POST /api/auth/logout
- * @access  Public
- */
+* @desc    Logout user (client-side token removal)
+* @route   POST /api/auth/logout
+* @access  Public
+*/
 export const logout = async (req, res) => {
   res.json({
     success: true,

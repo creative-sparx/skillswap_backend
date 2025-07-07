@@ -67,6 +67,9 @@ const messageSchema = new mongoose.Schema({
 messageSchema.index({ swap: 1, createdAt: 1 });
 messageSchema.index({ sender: 1, recipient: 1 });
 messageSchema.index({ recipient: 1, isRead: 1 });
+// Compound indexes for performance: userId/createdAt
+messageSchema.index({ sender: 1, createdAt: -1 });
+messageSchema.index({ recipient: 1, createdAt: -1 });
 
 // Middleware to populate repliedToSender when repliedToMessageId is set
 messageSchema.pre('save', async function(next) {

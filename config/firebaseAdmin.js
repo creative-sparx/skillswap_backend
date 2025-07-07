@@ -1,13 +1,19 @@
 import admin from 'firebase-admin';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import fs from 'fs';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get current directory - simplified for Jest compatibility
+const getCurrentDir = () => {
+  if (typeof __dirname !== 'undefined') {
+    return __dirname;
+  }
+  return process.cwd();
+};
+
+const currentDir = getCurrentDir();
 
 // Initialize Firebase Admin SDK
 let firebaseInitialized = false;
@@ -24,7 +30,7 @@ try {
     firebaseInitialized = true;
   } else {
     // Try to load from file (for local development)
-    const serviceAccountPath = path.resolve(__dirname, process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE || '../../firebase-adminsdk.json');
+    const serviceAccountPath = path.resolve(currentDir, process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE || '../../firebase-adminsdk.json');
     
     if (fs.existsSync(serviceAccountPath)) {
       admin.initializeApp({

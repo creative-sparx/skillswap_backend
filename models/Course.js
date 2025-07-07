@@ -132,4 +132,14 @@ courseSchema.index({ tutor: 1 });
 courseSchema.index({ price: 1 });
 courseSchema.index({ isPublished: 1 });
 
+// Compound indexes for better query performance
+courseSchema.index({ isPublished: 1, category: 1 });
+courseSchema.index({ isPublished: 1, createdAt: -1 });
+courseSchema.index({ tutor: 1, isPublished: 1 });
+courseSchema.index({ category: 1, level: 1 });
+courseSchema.index({ price: 1, rating: -1 });
+courseSchema.index({ tags: 1, isPublished: 1 });
+courseSchema.index({ rating: -1, ratingCount: -1 }); // For popular courses
+courseSchema.index({ createdAt: -1, category: 1 }); // For recent courses by category
+
 export default mongoose.model('Course', courseSchema);

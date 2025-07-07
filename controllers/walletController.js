@@ -1,3 +1,4 @@
+// @ts-nocheck
 import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import { io } from '../server.js';
@@ -306,6 +307,152 @@ export const getTransactionHistory = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching transaction history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+/**
+ * @desc    Verify payment and update wallet
+ * @route   POST /api/wallet/verify-payment
+ * @access  Private
+ */
+export const verifyPayment = async (req, res) => {
+  try {
+    const { tx_ref, transaction_id } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Find the transaction in our database
+    const transaction = await Transaction.findOne({ txRef: tx_ref, userId: user._id });
+    
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        message: 'Transaction not found'
+      });
+    }
+
+    if (transaction.status === 'successful') {
+      return res.status(200).json({
+        success: true,
+        message: 'Payment already verified',
+        data: { transaction }
+      });
+    }
+
+    // Verify with Flutterwave
+    const flutterwaveResponse = await fetch(`https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const verificationData = await flutterwaveResponse.json();
+
+    if (verificationData.status === 'success' && verificationData.data.status === 'successful') {
+      // Update transaction status
+      transaction.status = 'successful';
+      transaction.flutterwaveRef = verificationData.data.id;
+      await transaction.save();
+
+      // Add tokens to user wallet
+      user.wallet.balance += transaction.amount;
+      user.wallet.totalEarnings += transaction.amount;
+      await user.save();
+
+      // Emit real-time update
+      io.to(user._id.toString()).emit('walletUpdate', {
+        balance: user.wallet.balance,
+        transaction: transaction
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Payment verified successfully',
+        data: {
+          transaction,
+          newBalance: user.wallet.balance
+        }
+      });
+    } else {
+      transaction.status = 'failed';
+      await transaction.save();
+
+      res.status(400).json({
+        success: false,
+        message: 'Payment verification failed',
+        error: verificationData.message
+      });
+    }
+
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+/**
+ * @desc    Get transaction summary
+ * @route   GET /api/wallet/summary
+ * @access  Private
+ */
+export const getTransactionSummary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const summary = await Transaction.aggregate([
+      { $match: { userId: userId } },
+      {
+        $group: {
+          _id: '$type',
+          count: { $sum: 1 },
+          totalAmount: { $sum: '$amount' },
+          avgAmount: { $avg: '$amount' }
+        }
+      }
+    ]);
+
+    const statusSummary = await Transaction.aggregate([
+      { $match: { userId: userId } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalAmount: { $sum: '$amount' }
+        }
+      }
+    ]);
+
+    const recentTransactions = await Transaction.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('type amount status description createdAt');
+
+    res.status(200).json({
+      success: true,
+      data: {
+        byType: summary,
+        byStatus: statusSummary,
+        recent: recentTransactions
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching transaction summary:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'

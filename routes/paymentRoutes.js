@@ -1,14 +1,17 @@
 import express from 'express';
-import { handleFlutterwaveWebhook } from '../controllers/paymentController.js';
-// import { initializePayment } from '../controllers/paymentController.js';
-// import { protect } from '../middlewares/authMiddleware.js';
+import { handleFlutterwaveWebhook, handleStripeWebhook } from '../controllers/paymentController.js';
 
 const router = express.Router();
 
-// This route would be used by your frontend to start a payment
-// router.post('/initialize', protect, initializePayment);
-
-// This is the webhook route for Flutterwave to send events to
+// Webhook routes
+// Flutterwave webhook (JSON body parsed and verified in controller)
 router.post('/flutterwave-webhook', handleFlutterwaveWebhook);
+
+// Stripe webhook (raw body parser needed for signature verification)
+router.post(
+  '/stripe-webhook',
+  express.raw({ type: 'application/json' }),
+  handleStripeWebhook
+);
 
 export default router;

@@ -33,4 +33,7 @@ const skillSwapSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound index for querying by initiator and creation date
+skillSwapSchema.index({ initiator: 1, createdAt: -1 });
+
 export default mongoose.model('SkillSwap', skillSwapSchema);
